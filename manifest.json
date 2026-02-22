@@ -1,0 +1,10 @@
+{
+	"id": "flomo-importer-sync",
+	"name": "Flomo Importer Dev",
+	"version": "2.4.0",
+	"minAppVersion": "1.5.0",
+	"description": "Make Flomo Memos to Obsidian Notes",
+	"author": "原作者: jia6y | 魔改者: springrain | 公众号: 及时春雨",
+	"authorUrl": "https://github.com/springrain1",
+	"isDesktopOnly": true
+}
