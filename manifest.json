@@ -1,9 +1,9 @@
 {
-	"id": "flomo-importer-sync_enhance",
+	"id": "flomo-importer-enhance",
 	"name": "Flomo Importer",
 	"version": "2.4.0",
 	"minAppVersion": "1.5.0",
-	"description": "Make Flomo Memos to Obsidian Notes.",
+	"description": "Import and sync Flomo memos to your vault.",
 	"author": "springrain | 公众号: 及时春雨",
 	"authorUrl": "https://github.com/springrain1",
 	"isDesktopOnly": true
