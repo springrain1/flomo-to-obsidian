@@ -31,6 +31,8 @@ esbuild.build({
 		'@lezer/common',
 		'@lezer/highlight',
 		'@lezer/lr',
+		'playwright',
+		'playwright-core',
 		...builtins],
 	format: 'cjs',
 	watch: !prod,
