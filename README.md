@@ -2,7 +2,7 @@
 
 ##### ☕️ Make Flomo Memos to Obsidian Notes.
 
-> **Version 2.4.2** - Enhanced fork from [jia6y/flomo-to-obsidian](https://github.com/jia6y/flomo-to-obsidian) with major improvements
+> **Version 2.4.3** - Enhanced fork from [jia6y/flomo-to-obsidian](https://github.com/jia6y/flomo-to-obsidian) with major improvements
 
 **Author:** springrain | 公众号: 及时春雨  
 **GitHub:** [https://github.com/springrain1](https://github.com/springrain1)
