@@ -6,5 +6,5 @@
 	"description": "Import and sync Flomo memos to your vault.",
 	"author": "springrain | 公众号: 及时春雨",
 	"authorUrl": "https://github.com/springrain1",
-	"isDesktopOnly": true
+	"isDesktopOnly": false
 }
