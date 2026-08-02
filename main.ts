@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import { AUTH_FILE, DOWNLOAD_FILE } from './lib/flomo/const';
 
 
-interface MyPluginSettings {
+interface FlomoImporterSettings {
 	flomoTarget: string,
 	memoTarget: string,
 	optionsMoments: string,
@@ -28,7 +28,7 @@ interface MyPluginSettings {
 	debugMode: boolean            // 调试模式开关
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: FlomoImporterSettings = {
 	flomoTarget: 'flomo',
 	memoTarget: 'memos',
 	optionsMoments: "copy_with_link",
@@ -51,7 +51,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 }
 
 export default class FlomoImporterPlugin extends Plugin {
-	settings: MyPluginSettings;
+	declare settings: FlomoImporterSettings;
 	mainUI: MainUI;
 	syncIntervalId: number | null = null;
 
@@ -64,7 +64,7 @@ export default class FlomoImporterPlugin extends Plugin {
 			this.mainUI.open();
 		});
 
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		ribbonIconEl.addClass('flomo-importer-ribbon-class');
 
 		// Flomo Importer Command
 		this.addCommand({
@@ -87,8 +87,8 @@ export default class FlomoImporterPlugin extends Plugin {
 		// 启动时自动同步
 		if (this.settings.autoSyncOnStartup) {
 			// 等待 2 秒让 Obsidian 完全加载
-			setTimeout(async () => {
-				await this.syncFlomo();
+			window.setTimeout(() => {
+				void this.syncFlomo();
 			}, 2000);
 		}
 
@@ -123,8 +123,8 @@ export default class FlomoImporterPlugin extends Plugin {
 		}
 
 		// 设置每小时同步一次 (3600000ms = 1小时)
-		this.syncIntervalId = window.setInterval(async () => {
-			await this.syncFlomo();
+		this.syncIntervalId = window.setInterval(() => {
+			void this.syncFlomo();
 		}, 3600000);
 	}
 
@@ -140,7 +140,7 @@ export default class FlomoImporterPlugin extends Plugin {
 	async syncFlomo() {
 		try {
 			// 使用 mainUI 的 onSync 方法进行同步
-			const syncBtn = new ButtonComponent(document.createElement('div'));
+			const syncBtn = new ButtonComponent(createDiv());
 			await this.mainUI.onSync(syncBtn);
 
 			// 更新最后同步时间

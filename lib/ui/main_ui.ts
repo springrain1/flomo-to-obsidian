@@ -6,10 +6,50 @@ import { FlomoImporter } from '../flomo/importer';
 import { FlomoExporter } from '../flomo/exporter';
 import type FlomoImporterPlugin from '../../main';
 
-import * as path from 'path';
 import * as fs from 'fs-extra';
 
 import { AUTH_FILE, DOWNLOAD_FILE, FLOMO_CACHE_LOC } from '../flomo/const'
+
+const path = (window as any).require ? (window as any).require('path') : null;
+
+export class ConfirmResetModal extends Modal {
+    private message: string;
+    private onConfirm: () => void;
+
+    constructor(app: App, message: string, onConfirm: () => void) {
+        super(app);
+        this.message = message;
+        this.onConfirm = onConfirm;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.createEl('h3', { text: '确认重置' });
+        
+        const lines = this.message.split('\n');
+        for (const line of lines) {
+            if (line.trim()) {
+                contentEl.createEl('p', { text: line });
+            }
+        }
+
+        new Setting(contentEl)
+            .addButton(btn => btn
+                .setButtonText('取消')
+                .onClick(() => this.close()))
+            .addButton(btn => btn
+                .setButtonText('确定重置')
+                .setWarning()
+                .onClick(() => {
+                    this.close();
+                    this.onConfirm();
+                }));
+    }
+
+    onClose() {
+        this.contentEl.empty();
+    }
+}
 
 export class MainUI extends Modal {
 
@@ -247,8 +287,8 @@ export class MainUI extends Modal {
         };
 
         // 按日期合并选项容器（Thino 模式下隐藏，因为 Thino 强制按日期合并）
-        const mergeByDateContainer = contentEl.createEl("div", { cls: "merge-by-date-container" });
-        mergeByDateContainer.style.display = this.plugin.settings.thinoCompatible ? "none" : "block";
+        const mergeByDateContainer: HTMLDivElement = contentEl.createEl("div", { cls: "merge-by-date-container" });
+        mergeByDateContainer.toggleClass("flomo-hidden", !!this.plugin.settings.thinoCompatible);
 
         const mergeByDate = createExpOpt(mergeByDateContainer, "按日期合并笔记")
 
@@ -285,10 +325,8 @@ export class MainUI extends Modal {
         filterByTags.checked = this.plugin.settings.filterByTags;
 
         // 标签输入框容器
-        const tagInputContainer = contentEl.createEl("div", { cls: "tag-input-container" });
-        tagInputContainer.style.display = this.plugin.settings.filterByTags ? "block" : "none";
-        tagInputContainer.style.marginLeft = "20px";
-        tagInputContainer.style.marginBottom = "10px";
+        const tagInputContainer: HTMLDivElement = contentEl.createEl("div", { cls: "tag-input-container flomo-sub-container" });
+        tagInputContainer.toggleClass("flomo-hidden", !this.plugin.settings.filterByTags);
 
         new Setting(tagInputContainer)
             .setName('同步标签')
@@ -305,8 +343,9 @@ export class MainUI extends Modal {
                 }));
 
         filterByTags.onchange = (ev) => {
-            this.plugin.settings.filterByTags = (ev.currentTarget as HTMLInputElement).checked;
-            tagInputContainer.style.display = this.plugin.settings.filterByTags ? "block" : "none";
+            const checked = (ev.currentTarget as HTMLInputElement).checked;
+            this.plugin.settings.filterByTags = checked;
+            tagInputContainer.toggleClass("flomo-hidden", !checked);
         };
 
         // Thino/Memos 兼容模式
@@ -316,10 +355,8 @@ export class MainUI extends Modal {
         thinoCompatible.checked = this.plugin.settings.thinoCompatible;
 
         // Thino 设置容器（根据开关状态显示/隐藏）
-        const thinoContainer = contentEl.createEl("div", { cls: "thino-container" });
-        thinoContainer.style.marginLeft = "20px";
-        thinoContainer.style.marginBottom = "10px";
-        thinoContainer.style.display = this.plugin.settings.thinoCompatible ? "block" : "none";
+        const thinoContainer: HTMLDivElement = contentEl.createEl("div", { cls: "thino-container flomo-sub-container" });
+        thinoContainer.toggleClass("flomo-hidden", !this.plugin.settings.thinoCompatible);
 
         new Setting(thinoContainer)
             .setName('文件名前缀')
@@ -363,10 +400,11 @@ export class MainUI extends Modal {
                 }));
 
         thinoCompatible.onchange = (ev) => {
-            this.plugin.settings.thinoCompatible = (ev.currentTarget as HTMLInputElement).checked;
-            thinoContainer.style.display = (ev.currentTarget as HTMLInputElement).checked ? "block" : "none";
+            const checked = (ev.currentTarget as HTMLInputElement).checked;
+            this.plugin.settings.thinoCompatible = checked;
+            thinoContainer.toggleClass("flomo-hidden", !checked);
             // Thino 模式下隐藏"按日期合并"选项（Thino 强制按日期合并）
-            mergeByDateContainer.style.display = (ev.currentTarget as HTMLInputElement).checked ? "none" : "block";
+            mergeByDateContainer.toggleClass("flomo-hidden", checked);
         };
 
         // 显示上次同步时间和同步记录数
@@ -390,19 +428,15 @@ export class MainUI extends Modal {
             .addButton((btn) => {
                 btn.setButtonText("重置同步记录")
                     .setWarning()
-                    .onClick(async () => {
+                    .onClick(() => {
                         const flomoTarget = this.plugin.settings.flomoTarget || "flomo";
                         const memoTarget = this.plugin.settings.memoTarget || "memos";
-                        const confirmed = confirm(
-                            `确定要重置同步记录吗？\n\n` +
+                        const msg = `确定要重置同步记录吗？\n` +
                             `这将清除 ${this.plugin.settings.syncedMemoIds?.length || 0} 条同步记录。\n` +
-                            `下次同步将重新导入所有 Flomo 笔记。\n\n` +
-                            `⚠️ 重要提示：再次同步前，建议先删除：\n` +
-                            `1. 旧的笔记目录: ${flomoTarget}/${memoTarget}/\n` +
-                            `2. 旧的附件目录（如有变更）\n\n` +
-                            `否则现有文件将被覆盖！`
-                        );
-                        if (confirmed) {
+                            `下次同步将重新导入所有 Flomo 笔记。\n` +
+                            `⚠️ 重要提示：再次同步前，建议先删除旧笔记与附件目录，否则文件将被覆盖！`;
+
+                        new ConfirmResetModal(this.app, msg, async () => {
                             this.plugin.settings.syncedMemoIds = [];
                             this.plugin.settings.lastSyncTime = 0;
                             await this.plugin.saveSettings();
@@ -415,8 +449,8 @@ export class MainUI extends Modal {
                             );
                             this.close();
                             this.open();
-                        }
-                    })
+                        }).open();
+                    });
             });
 
         new Setting(contentEl)

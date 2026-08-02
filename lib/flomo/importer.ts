@@ -1,9 +1,10 @@
-import * as path from 'path';
 import * as fs from 'fs-extra';
 
 import { App, normalizePath } from 'obsidian';
 import decompress from 'decompress';
 import * as parse5 from "parse5"
+
+const path = (window as any).require ? (window as any).require('path') : null;
 
 import { FlomoCore } from './core';
 import { generateMoments } from '../obIntegration/moments';
@@ -356,7 +357,7 @@ export class FlomoImporter {
     async import(): Promise<FlomoCore> {
 
         // 1. Create workspace
-        const tmpDir = path.join(FLOMO_CACHE_LOC, "data")
+        const tmpDir = path ? path.join(FLOMO_CACHE_LOC, "data") : `${FLOMO_CACHE_LOC}/data`;
         await fs.mkdirp(tmpDir);
 
         // 2. Unzip flomo_backup.zip to workspace
@@ -527,7 +528,8 @@ export class FlomoImporter {
                 }).join("\n\n---\n\n");
 
                 const fileName = groupFiles[0].title + ".md";
-                await fs.writeFile(path.join(folder, fileName), content, 'utf8');
+                const outPath = path ? path.join(folder, fileName) : `${folder}/${fileName}`;
+                await fs.writeFile(outPath, content, 'utf8');
 
 
             } else {
@@ -541,7 +543,8 @@ export class FlomoImporter {
                         fileName += "_" + (i + 1);
                     }
                     fileName += ".md";
-                    await fs.writeFile(path.join(folder, fileName), memo.content, 'utf8');
+                    const outPath = path ? path.join(folder, fileName) : `${folder}/${fileName}`;
+                    await fs.writeFile(outPath, memo.content, 'utf8');
                 }
             }
         }

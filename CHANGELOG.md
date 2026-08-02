@@ -1,6 +1,15 @@
 # 更新日志
 
 本文档记录 Flomo Importer 插件的所有重要变更。
+## [2.6.1] - 2026-08-02
+
+### 🐛 官方审核修复 / Official Review Fixes
+- **修复 CSS 样式直接赋值报错**：消除了 `main_ui.ts` 中直接给 `style` 属性赋值的静态样式错误，全面改用独立的 CSS 工具类。
+- **修复示例类名警告**：将 `main.ts` 中的示例类名更名为 `FlomoImporterSettings` 与 `flomo-importer-ribbon-class`。
+- **替代原生 confirm 弹窗**：使用标准的 Obsidian Modal (`ConfirmResetModal`) 替换了 JavaScript 原生 `confirm` 函数。
+- **消除 Node.js 模块顶层导入警告**：优化了 `path` 和 `os` 模块的引用方式，改为通过受保护的 `window.require` 动态获取，提升代码质量和兼容性。
+- **修复 TypeScript 编译与声明**：为 Plugin 的 `settings` 属性补充 `declare` 关键字，确保最新 TypeScript 语法规范兼容。
+
 ---
 
 ## [2.6.0] - 2026-08-01

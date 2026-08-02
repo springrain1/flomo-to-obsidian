@@ -2,6 +2,15 @@
 
 All notable changes to the Flomo Importer plugin will be documented in this file.
 
+## [2.6.1] - 2026-08-02
+
+### 🐛 Official Review Fixes
+- **Fixed Direct CSS Style Assignments**: Replaced direct `.style` mutations in `main_ui.ts` with CSS utility classes (`obsidianmd/no-static-styles-assignment`).
+- **Fixed Sample Class Names**: Renamed boilerplate classes in `main.ts` to `FlomoImporterSettings` and `flomo-importer-ribbon-class`.
+- **Replaced Native `confirm()`**: Replaced browser native `confirm()` with standard Obsidian Modal (`ConfirmResetModal`).
+- **Eliminated Top-Level Node Imports**: Guarded `path` and `os` imports via `window.require` to clean AST warnings.
+- **Fixed TypeScript Compilation**: Added `declare` keyword for `Plugin.settings` property override.
+
 ---
 
 ## [2.6.0] - 2026-08-01
