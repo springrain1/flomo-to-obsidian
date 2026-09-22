@@ -2,7 +2,7 @@
 
 ##### ☕️ Import Flomo Memos to Obsidian Notes
 
-> **Version 2.6.0** - Enhanced fork from [jia6y/flomo-to-obsidian](https://github.com/jia6y/flomo-to-obsidian) with major improvements
+> **Version 2.8.0** - Enhanced fork from [jia6y/flomo-to-obsidian](https://github.com/jia6y/flomo-to-obsidian) with major improvements
 
 - Original Discussion: [Discussion](https://github.com/jia6y/flomo-to-obsidian/discussions)
 
@@ -17,6 +17,48 @@
 
 <br />
 <br />
+
+## 🎉 What's New in Version 2.8.0
+
+### 📱 Android Attachment Extension Auto-Detection & Image Display Fixes
+- **Binary Magic Number Sniffing**: Built-in file header inspection detects extensions for media files uploaded via Android (JPG, PNG, GIF, WEBP, BMP, AAC, AMR, MP4, MP3, PDF, etc.).
+- **Image Embed Rendering Fix**: Automatically appends the detected extension upon saving and updates Markdown rendering logic, completely solving the issue where Android images appear blank or turn into plain links.
+- **Idempotent Local Cache Detection**: Incremental sync automatically checks for existing local files with extensions to prevent duplicate downloads.
+
+### ⏱ Force Update Creation Date Synchronization
+- **Dedicated Date Update Endpoint**: Fully aligned with Flomo's official web architecture by invoking `PUT /api/v1/memo/:slug/created_at` during force updates, ensuring remote timelines are properly updated.
+- **Real-Time YAML Parsing & Bidirectional Sync**: Dynamically extracts `created` frontmatter directly from the input Markdown and writes server-confirmed dates back to local frontmatter.
+
+---
+
+## 🎉 What's New in Version 2.7.0
+
+### 📤 Push Rendering & Remote Update Enhancements
+- **Force Update Remote Memos**: Support explicitly updating an existing Flomo memo when a local note already has a valid `slug`, avoiding duplicate entries.
+- **Batch Force Update**: Support updating multiple existing memos during batch push operations.
+- **Visible Stop Push Control**: Added a "Stop Push" button during batch operations to immediately cancel pending requests.
+- **Preserve Blank Lines**: Explicit option to preserve empty lines from source Markdown as blank paragraphs.
+- **Configurable Heading Marker Removal**: Configure whether to remove Markdown ATX heading markers (`#`, `##`) in Rich-Text mode.
+
+### 🐛 Bug Fixes & Architecture
+- **Rich-Text List Rendering Fixed**: Properly render Markdown lists into `<ul>/<ol>` structures, handling NBSP cases correctly.
+- **No More Escaped Entities**: Fixed `&nbsp;` appearing visibly in pushed texts.
+- **Accurate List Boundaries**: Fixed list merging issues when separated by non-list blocks without empty lines.
+
+---
+
+## 🎉 What's New in Version 2.6.1
+
+### 📤 Split Push Enhancements
+- **Timestamp-based Splitting**: Split notes into independent memos when pushing to Flomo based on `HH:MM` or `HH:MM:SS` prefixes, preserving checkbox states.
+- **Split Preview & Auto Write-back**: Added split preview in the Push Modal and automatic slug write-back to the source document after a successful push.
+
+### 🐛 WebView Auth Stability & Mobile Support
+- **Sandboxed Sessions**: Authenticated WebView sessions are now sandboxed with unique partitions to prevent state leaks and crashes.
+- **Initial Frame Crash Fix**: Improved WebView modal rendering and focus sequence to fix a critical Electron crash on Obsidian v1.13.6.
+- **Mobile Loading Fix**: Native Node.js modules (Playwright, fs-extra, etc.) are now lazily loaded exclusively on Desktop, resolving module resolution crashes on Obsidian Mobile.
+
+---
 
 ## 🎉 What's New in Version 2.6.0
 

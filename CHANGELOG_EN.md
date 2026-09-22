@@ -2,14 +2,59 @@
 
 All notable changes to the Flomo Importer plugin will be documented in this file.
 
-## [2.6.1] - 2026-08-02
+---
 
-### 🐛 Official Review Fixes
-- **Fixed Direct CSS Style Assignments**: Replaced direct `.style` mutations in `main_ui.ts` with CSS utility classes (`obsidianmd/no-static-styles-assignment`).
-- **Fixed Sample Class Names**: Renamed boilerplate classes in `main.ts` to `FlomoImporterSettings` and `flomo-importer-ribbon-class`.
-- **Replaced Native `confirm()`**: Replaced browser native `confirm()` with standard Obsidian Modal (`ConfirmResetModal`).
-- **Eliminated Top-Level Node Imports**: Guarded `path` and `os` imports via `window.require` to clean AST warnings.
-- **Fixed TypeScript Compilation**: Added `declare` keyword for `Plugin.settings` property override.
+## [2.8.0] - 2026-09-08
+
+### ✨ New Features
+
+#### 📱 Android Attachment Extension Auto-Detection & Image Display Fixes
+- **Binary Magic Number Sniffing**: Implemented file header magic byte inspection for media files uploaded via the Flomo Android client (which lack file extensions by default), accurately detecting JPG, PNG, GIF, WEBP, BMP, AAC, AMR, MP4, MP3, PDF, OGG, and ZIP formats.
+- **Idempotent Local Cache Check**: Automatically checks for existing local files with inferred extensions before downloading, preventing redundant downloads during incremental sync.
+- **Relaxed Image Embed Syntax**: Automatically appends the detected extension upon saving and updates the in-memory filename. Relaxed Markdown rendering conditions (prioritizing `file.type === 'image'`) so all images are correctly embedded with `![[...]]` syntax instead of plain text links `[[...]]`.
+- **Clean Cascade Deletion**: When deleting a memo, if the attachment filename lacks an extension, candidate extensions are automatically scanned to purge local files cleanly.
+
+#### ⏱ Force Update Creation Date Synchronization
+- **Dedicated Date Update Endpoint**: Fully aligned with Flomo's official web architecture by invoking `PUT /api/v1/memo/:slug/created_at` during force updates, resolving the issue where `PUT /api/v2/memo/:slug` ignored `created_at` on the server.
+- **Dynamic YAML Frontmatter Parsing**: Frontmatter `created` / `created_at` values are now dynamically extracted directly from the input Markdown text during force push, bypassing Obsidian's asynchronous `metadataCache` latency.
+- **Bidirectional Metadata Write-back**: Both the server-confirmed `created` and `modified` timestamps are normalized and written back to the local note's frontmatter, keeping the local and remote timelines in exact sync.
+
+---
+
+## [2.7.0] - 2026-08-16
+
+### ✨ New Features
+
+#### 📤 Push Rendering & Remote Update Enhancements
+- **Force Update Remote Memos**: When a local note is already linked to a remote Flomo memo (has a valid `slug`), you can now explicitly choose "Force Update Flomo" to overwrite the existing remote memo instead of creating a duplicate. This is exclusively available via the Token Push Channel.
+- **Batch Force Update**: Support for explicitly updating multiple existing memos when selecting multiple files or folders for batch operations. Files without a `slug` will continue to be created normally.
+- **Visible Stop Push Control**: Added a visible "Stop Push" button during batch operations to immediately cancel pending requests and safely abort the batch process.
+- **Preserve Blank Lines**: Added an option to explicitly preserve empty lines from the source Markdown as blank paragraphs in Flomo, maintaining visual spacing.
+- **Configurable Heading Marker Removal**: When using Rich-Text rendering mode, you can now configure whether to remove Markdown ATX heading markers (`#`, `##`, etc.) or preserve them as visible text.
+
+### 🐛 Bug Fixes & Architecture
+
+#### Markdown Structure Rendering
+- **Rich-Text List Rendering Fixed**: Completely resolved issues where Markdown lists in Rich-Text mode failed to render as proper `<ul>/<ol>` structures, especially when using Non-Breaking Spaces (NBSP) after list markers.
+- **No More Escaped Entities**: Fixed a bug where `&nbsp;` or `&amp;nbsp;` would visibly appear in the pushed text when handling indents or specific whitespace characters.
+- **Accurate List Boundaries**: Fixed structural edge cases where a new list directly following a previous list (separated by text but no empty lines) would incorrectly merge into the previous list's `<li>` tag.
+
+---
+
+## [2.6.1] - 2026-08-14
+
+### ✨ New Features
+
+#### 📤 Split Push Enhancements
+- **Timestamp-based Splitting**: Support splitting notes into independent memos when pushing to Flomo based on `HH:MM` or `HH:MM:SS` prefixes, while preserving checkbox states.
+- **Split Preview**: Added split preview capabilities in the Push Modal. Flomo slugs are automatically written back to the source document after a successful split push.
+
+### 🐛 Bug Fixes & Architecture
+
+#### WebView Auth Stability & Mobile Support
+- **Sandboxed WebView Sessions**: Authenticated WebView sessions are now sandboxed with unique partitions to prevent state leaks and crashes during or after login.
+- **Prevent Initial Frame Crashes**: Improved the WebView modal's rendering and DOM focus sequence, resolving a critical Electron crash issue on Obsidian v1.13.6.
+- **Cross-Platform Compatibility**: Refactored `moduleLoader` to lazily load Playwright and native Node.js modules (`fs-extra`, `path`) exclusively on Desktop. This resolves module resolution crashes on Obsidian Mobile, ensuring the plugin works perfectly on mobile devices.
 
 ---
 

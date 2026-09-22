@@ -2,7 +2,7 @@
 
 ##### ☕️ 将 Flomo 笔记导入 Obsidian
 
-> **Version 2.6.0** - 增强版分支，源自 [jia6y/flomo-to-obsidian](https://github.com/jia6y/flomo-to-obsidian)，包含重大改进
+> **Version 2.8.0** - 增强版分支，源自 [jia6y/flomo-to-obsidian](https://github.com/jia6y/flomo-to-obsidian)，包含重大改进
 
 - 原始讨论 / Original Discussion: [Discussion](https://github.com/jia6y/flomo-to-obsidian/discussions)
 
@@ -17,6 +17,48 @@
 
 <br />
 <br />
+
+## 🎉 Version 2.8.0 新特性
+
+### 📱 Android 客户端附件无后缀自动推断与显示修复
+- **二进制魔数智能识别**：内置常见文件头魔数探测，精准识别 Android 端上传的无扩展名图片与音频（JPG/PNG/GIF/WEBP/BMP/AAC/AMR/MP4/MP3/PDF 等）。
+- **图片内嵌渲染修复**：落盘时自动补全扩展名，Markdown 渲染器放宽图片判定，彻底解决 Android 上传图片显示为空白或误变为普通文本链接的问题。
+- **本地查重幂等优化**：增量同步时自动感知本地同名带扩展名附件，避免重复下载。
+
+### ⏱ 强制推送创建时间修改生效
+- **接入官方修改时间专属接口**：强制更新时同步调用 `PUT /api/v1/memo/:slug/created_at`，解决原接口忽略 `created_at` 导致远端时间线未更新的问题。
+- **YAML 实时解析与双向同步**：优先从 Markdown 实时解析 YAML `created`，推送成功后将服务端确认的时间一致回写至本地 Frontmatter。
+
+---
+
+## 🎉 Version 2.7.0 新特性
+
+### 📤 推送渲染与远端更新增强
+- **强制更新远端 Memo**：本地笔记存在有效 `slug` 时，支持强制覆盖远端 Flomo memo，避免创建重复内容。
+- **批量覆盖更新**：支持对多选文件/文件夹进行批量覆盖更新。
+- **可见的停止控制**：在批量推送时提供“停止推送”按钮，快速安全地终止批次任务。
+- **空行保留策略**：可将 Markdown 视觉空行显式转换为 Flomo 的空段落。
+- **可配置的标题标记移除**：富文本模式下支持控制是否保留 `#`/`##` 等标题标记。
+
+### 🐛 Bug 修复与架构优化
+- **富文本列表渲染**：彻底修复 Token 推送通道下，包含 NBSP 的列表结构解析错误问题。
+- **消除 HTML 实体文本**：修复推送文本中出现多余 `&nbsp;` 的问题。
+- **列表边界解析**：修复无空行分隔时不同列表块错误合并的问题。
+
+---
+
+## 🎉 Version 2.6.1 新特性
+
+### 📤 推送拆分增强
+- **时间条目拆分**：推送到 Flomo 时支持基于 `HH:MM` / `HH:MM:SS` 的时间戳列表拆分，并保留复选框状态。
+- **弹窗预览与回写**：Push 弹窗支持拆分预览，推送成功后将 slug 自动写回原文件。
+
+### 🐛 WebView 授权稳定与移动端支持
+- **授权会话隔离**：沙盒化 WebView 会话以防止状态泄漏，解决注销登录时产生的崩溃。
+- **解决首帧崩溃**：优化了 WebView 弹窗渲染机制，彻底解决在 Obsidian v1.13.6 下弹窗的 Electron 崩溃问题。
+- **移动端加载优化**：原生 Node.js 模块（如 Playwright、fs-extra 等）现在仅在桌面端惰性按需加载，修复移动端模块解析崩溃，确保多端可用。
+
+---
 
 ## 🎉 Version 2.6.0 新特性
 

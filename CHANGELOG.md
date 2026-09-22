@@ -1,14 +1,59 @@
 # 更新日志
 
 本文档记录 Flomo Importer 插件的所有重要变更。
-## [2.6.1] - 2026-08-02
+---
 
-### 🐛 官方审核修复 / Official Review Fixes
-- **修复 CSS 样式直接赋值报错**：消除了 `main_ui.ts` 中直接给 `style` 属性赋值的静态样式错误，全面改用独立的 CSS 工具类。
-- **修复示例类名警告**：将 `main.ts` 中的示例类名更名为 `FlomoImporterSettings` 与 `flomo-importer-ribbon-class`。
-- **替代原生 confirm 弹窗**：使用标准的 Obsidian Modal (`ConfirmResetModal`) 替换了 JavaScript 原生 `confirm` 函数。
-- **消除 Node.js 模块顶层导入警告**：优化了 `path` 和 `os` 模块的引用方式，改为通过受保护的 `window.require` 动态获取，提升代码质量和兼容性。
-- **修复 TypeScript 编译与声明**：为 Plugin 的 `settings` 属性补充 `declare` 关键字，确保最新 TypeScript 语法规范兼容。
+## [2.8.0] - 2026-09-08
+
+### ✨ 新功能 / New Features
+
+#### 📱 Android 客户端附件无后缀自动推断与显示修复 / Android Attachment Extension Auto-Detection
+- **文件二进制魔数智能识别**：针对 Flomo Android 客户端上传的纯哈希/时间戳命名且无扩展名的媒体文件，新增基于文件头魔数（Magic Number）的格式嗅探能力，内置对 JPG、PNG、GIF、WEBP、BMP、AAC、AMR、MP4、MP3、PDF、OGG、ZIP 的精准推断。
+- **本地查重幂等优化**：下载前自动探测本地同名且已补全扩展名的附件，避免增量同步时的无谓重复下载。
+- **渲染端内嵌语法放宽**：附件落盘时自动补全扩展名并反哺回内存模型，同时放宽 Markdown 渲染端对图片的判定条件（优先认可 `file.type === 'image'`），确保所有图片均以 `![[...]]` 内嵌语法呈现，彻底解决 Android 上传图片在 Obsidian 中丢失、无法预览或降级为普通文本链接的问题。
+- **附件删除联动清理**：Memo 删除时若原附件名无后缀，自动遍历所有候选扩展名进行彻底清理，避免残留孤儿附件。
+
+#### ⏱ 强制推送创建时间修改生效 / Force Update Creation Date Synchronization
+- **接入官方修改时间专属接口**：彻底对齐 Flomo 官方 Web 前端时间修改机制，在强制更新（覆盖远端 Memo）链路中补充调用 `PUT /api/v1/memo/:slug/created_at` 接口，解决原 `PUT /api/v2/memo/:slug` 接口在服务端忽略 `created_at` 导致远端时间轴未被更新的底层问题。
+- **YAML Frontmatter 实时动态解析**：强制推送时优先直接从待推送的 Markdown 文本 YAML 区域提取最新的 `created` / `created_at`，规避 Obsidian `metadataCache` 异步延迟或弹窗内临时调整时间无法同步生效的问题。
+- **前后端元数据一致性回写**：远端时间更新成功后，将服务端确认的最新 `created` 与 `modified` 规范化写回本地笔记 Frontmatter，保证本地文档与远端时间轴完全一致。
+
+---
+
+## [2.7.0] - 2026-08-16
+
+### ✨ 新功能 / New Features
+
+#### 📤 推送渲染与远端更新增强 / Push Rendering & Remote Update Enhancements
+- **强制更新远端 Memo**：当本地笔记已经与远端 Flomo memo 建立关联（包含有效 `slug`）时，现在可以明确选择“强制更新 Flomo”来覆盖原远端内容，而不会创建重复 memo。此功能仅限 Token 推送通道可用。
+- **批量覆盖更新**：在多选文件或文件夹执行批量推送时，支持显式选择“批量覆盖更新已有 memo”，无 `slug` 的文件继续按普通规则新建。
+- **批量推送可见停止控制**：在执行批量操作时提供明确的“停止推送”按钮，可立即终止剩余任务并安全中断当前批次。
+- **空行保留策略**：新增“保留空行渲染”可选项，将源 Markdown 中的视觉空行显式转换为 Flomo 可保存的空段落，以保持排版间距。
+- **可配置的标题标记移除**：在富文本渲染模式下，新增开关以控制是否移除 `#`/`##` 等 Markdown 标题语法标记，或将其作为可见普通文本保留。
+
+### 🐛 Bug 修复与架构优化 / Bug Fixes & Architecture
+
+#### Markdown 结构渲染修复
+- **富文本列表渲染**：彻底修复 Token 推送通道下，富文本模式未能将 Markdown 列表正确转换为 `<ul>/<ol>` 结构的问题（特别是当列表标记后跟随 NBSP 空白时）。
+- **消除 HTML 实体文本**：修复处理缩进和空白时，导致最终正文中出现系统生成的肉眼可见 `&nbsp;` 或 `&amp;nbsp;` 的问题。
+- **准确的列表边界解析**：修复了在没有空行分隔的情况下，“列表块 → 同级非列表块 → 下一列表块”会被错误合并至上一列表项的问题，保证嵌套结构合法。
+
+---
+
+## [2.6.1] - 2026-08-14
+
+### ✨ 新功能 / New Features
+
+#### 📤 推送拆分增强 / Split Push Enhancements
+- **时间条目拆分**：支持基于 `HH:MM` 或 `HH:MM:SS` 前缀的时间戳条目将笔记拆分为独立 Memo 推送到 Flomo，并保留复选框（Checkbox）状态。
+- **弹窗拆分预览**：Push 弹窗新增拆分预览功能，并支持发送成功后将生成好的 slug 自动写回原 Obsidian 文档中。
+
+### 🐛 Bug 修复与架构优化 / Bug Fixes & Architecture
+
+#### WebView 授权稳定与移动端支持
+- **WebView 会话隔离**：通过唯一的分区（Partition）沙盒化授权会话，修复退出登录或状态残留导致的崩溃问题。
+- **防止首帧崩溃**：改进了 WebView 弹窗的渲染和 DOM 焦点获取顺序，彻底解决其在 Obsidian v1.13.6 上的闪退问题。
+- **跨端架构优化**：重构 `moduleLoader`，将 Playwright 及 `fs-extra`、`path` 等原生 Node.js 模块改为桌面端专属的按需惰性加载，修复 Obsidian Mobile 端的模块解析崩溃，保证移动端可用。
 
 ---
 
